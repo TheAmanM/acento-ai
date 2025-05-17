@@ -12,7 +12,7 @@ function App() {
   const { currentUser, loading } = useAuth();
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/acento-ai">
       <Routes>
         <Route
           path="/auth"
