@@ -603,7 +603,7 @@ function Dashboard() {
                     {index !== 0 && (
                       <hr className="h-px bg-gray-200 border-0 dark:bg-gray-300" />
                     )}
-                    <a href="https://github.com" target="_blank">
+                    <a href="https://github.com/acento-ai/acento-ai" target="_blank">
                       <div className="flex items-center justify-start gap-2">
                         {item.icon}
                         {item.name}
