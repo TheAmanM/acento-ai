@@ -650,7 +650,7 @@ function Dashboard() {
                 </div>
               ) : message.type === "modelResponse" ? (
                 <div
-                  className={`max-w-[75%] w-fit p-4 my-4 rounded-xl font-medium mr-auto bg-white text-black [&>*:not(:last-child)]:mb-6 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-2 [&_li:last-child]:mb-6`}
+                  className={`max-w-[75%] w-fit p-4 my-4 rounded-xl font-medium mr-auto bg-white text-black [&>*:not(:last-child)]:mb-6 [&_ul]:list-disc [&_ul]:ml-4 [&_li]:mb-2 [&_li:last-child]:mb-6 [&_pre]:whitespace-pre-wrap`}
                 >
                   {
                     <>
