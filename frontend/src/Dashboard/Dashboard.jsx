@@ -1,6 +1,7 @@
 import "./Dashboard.css";
 import "./../index.css";
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { flushSync } from "react-dom";
 import {
   getUserChats,
   getUserMessages,
@@ -301,6 +302,28 @@ function Dashboard() {
     }
   }, [currentChatUid, currentUser.uid]); */
 
+  const scrollToBottomIfNeeded = () => {
+    // Get scroll positions and heights from window/document
+    const scrollTop =
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop;
+    const windowHeight = window.innerHeight;
+    const docHeight = Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight,
+      document.documentElement.offsetHeight,
+      document.body.offsetHeight,
+      document.documentElement.clientHeight
+    );
+
+    const threshold = 20; // px from bottom to consider "at bottom"
+
+    const distanceFromBottom = docHeight - (scrollTop + windowHeight);
+
+    window.scrollTo({ top: 999999, behavior: "smooth" });
+  };
+
   const handleSendChat = async () => {
     const inputElement = document.querySelector("#chatInput");
     if (inputElement) {
@@ -308,7 +331,7 @@ function Dashboard() {
       inputElement.value = "";
     }
 
-    const scroller = document.querySelector("#scrollId");
+    /* const scroller = document.querySelector("#scrollId");
     if (scroller) {
       const lastMessage = scroller.lastElementChild;
       if (lastMessage) {
@@ -318,7 +341,9 @@ function Dashboard() {
       }
     } else {
       console.log("Last element DNE");
-    }
+    } */
+
+    scrollToBottomIfNeeded();
 
     setisFetchingData("true");
     var messages = localFetchMessages();
@@ -338,7 +363,6 @@ function Dashboard() {
 
     let isFirstChunk = true;
     await sendFileChat(resumeFile, messages, lastMessage.content, (chunk) => {
-      console.log(chunk);
       if (isFirstChunk) {
         localAppendMessages({
           content: { feedback: chunk },
@@ -350,6 +374,7 @@ function Dashboard() {
       } else {
         localPushChunk(chunk);
       }
+      scrollToBottomIfNeeded();
     });
 
     // console.log(result);
@@ -359,6 +384,9 @@ function Dashboard() {
       type: "modelResponse",
     }); */
 
+    flushSync(() => {
+      scrollToBottomIfNeeded();
+    });
     setisFetchingData("false");
   };
 
@@ -373,6 +401,8 @@ function Dashboard() {
       }
     }
 
+    scrollToBottomIfNeeded();
+
     // localAppendMessages({ content: chatInput, fromUser: true });
 
     setisFetchingData("true");
@@ -382,7 +412,6 @@ function Dashboard() {
     // const result = await sendFile(resumeFile, messages);
     let isFirstChunk = true;
     sendFile(resumeFile, messages, (chunk) => {
-      console.log(chunk);
       if (isFirstChunk) {
         localAppendMessages({
           content: { feedback: chunk },
@@ -394,10 +423,14 @@ function Dashboard() {
       } else {
         localPushChunk(chunk);
       }
+      scrollToBottomIfNeeded();
     });
     // console.log(result);
 
     // localSetResponse(result.feedback);
+    flushSync(() => {
+      scrollToBottomIfNeeded();
+    });
     setisFetchingData("false");
   };
 
@@ -458,7 +491,6 @@ function Dashboard() {
 
   const localPushChunk = (chunk) => {
     let oldMessages = localFetchMessages();
-    console.warn(oldMessages);
     oldMessages[oldMessages.length - 1].content.feedback += chunk;
 
     localStorage.setItem("messages", JSON.stringify(oldMessages));
@@ -662,7 +694,10 @@ function Dashboard() {
       </section>
       {chats !== null ? (
         <div className="w-full h-full px-4">
-          <div className="w-full h-full max-w-240 mx-auto -my-4" id="scrollId">
+          <div
+            className="w-full h-full max-w-240 mx-auto -my-4"
+            ref={scrollRef}
+          >
             {chats.map((message) => {
               return message.type === "pdf" ? (
                 <div className="max-w-[75%] my-4 rounded-xl ml-auto bg-[#070036] text-white">
