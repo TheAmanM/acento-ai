@@ -363,13 +363,23 @@ function Dashboard() {
     var messages = localFetchMessages();
     messages.pop(0);
     messages = JSON.stringify(messages);
-    const result = await sendFile(resumeFile, messages);
-    console.log(result);
-    localAppendMessages({
-      content: result,
-      fromUser: false,
-      type: "modelResponse",
+    // const result = await sendFile(resumeFile, messages);
+    let isFirstChunk = true;
+    sendFile(resumeFile, messages, (chunk) => {
+      console.log(chunk);
+      if (isFirstChunk) {
+        localAppendMessages({
+          content: chunk,
+          fromUser: false,
+          type: "modelResponse",
+        });
+        isFirstChunk = false;
+      } else {
+        localPushChunk(chunk);
+      }
     });
+    // console.log(result);
+
     // localSetResponse(result.feedback);
     setisFetchingData(false);
   };
@@ -425,6 +435,15 @@ function Dashboard() {
     }
 
     oldMessages.push(message);
+    localStorage.setItem("messages", JSON.stringify(oldMessages));
+    setChats(oldMessages);
+  };
+
+  const localPushChunk = (chunk) => {
+    let oldMessages = localFetchMessages();
+    console.warn(oldMessages);
+    oldMessages[oldMessages.length - 1].content += chunk;
+
     localStorage.setItem("messages", JSON.stringify(oldMessages));
     setChats(oldMessages);
   };
@@ -603,7 +622,10 @@ function Dashboard() {
                     {index !== 0 && (
                       <hr className="h-px bg-gray-200 border-0 dark:bg-gray-300" />
                     )}
-                    <a href="https://github.com/acento-ai/acento-ai" target="_blank">
+                    <a
+                      href="https://github.com/acento-ai/acento-ai"
+                      target="_blank"
+                    >
                       <div className="flex items-center justify-start gap-2">
                         {item.icon}
                         {item.name}
