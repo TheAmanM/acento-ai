@@ -438,7 +438,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="w-svw h-svh flex flex-col">
+    <div className="w-dvw h-dvh flex flex-col">
       <section className="py-6 px-8 flex items-center justify-start">
         <svg
           xmlns="http://www.w3.org/2000/svg"
