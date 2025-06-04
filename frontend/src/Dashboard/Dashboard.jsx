@@ -330,18 +330,34 @@ function Dashboard() {
         lastMessage.content
       }`
     );
-    const result = await sendFileChat(
-      resumeFile,
-      messages,
-      lastMessage.content
-    );
+    // const result = await sendFileChat(
+    //   resumeFile,
+    //   messages,
+    //   lastMessage.content
+    // );
 
-    console.log(result);
-    localAppendMessages({
+    let isFirstChunk = true;
+    await sendFileChat(resumeFile, messages, lastMessage.content, (chunk) => {
+      console.log(chunk);
+      if (isFirstChunk) {
+        localAppendMessages({
+          content: { feedback: chunk },
+          fromUser: false,
+          type: "modelResponse",
+        });
+        isFirstChunk = false;
+        setisFetchingData("generating");
+      } else {
+        localPushChunk(chunk);
+      }
+    });
+
+    // console.log(result);
+    /* localAppendMessages({
       content: result,
       fromUser: false,
       type: "modelResponse",
-    });
+    }); */
 
     setisFetchingData("false");
   };
