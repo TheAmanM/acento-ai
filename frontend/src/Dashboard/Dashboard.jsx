@@ -38,7 +38,7 @@ function Dashboard() {
   const [resumeFile, setResumeFile] = useState(null);
   const [chatInput, setChatInput] = useState("");
 
-  const [isFetchingData, setisFetchingData] = useState(false);
+  const [isFetchingData, setisFetchingData] = useState("false");
   const scrollRef = useRef(null);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -320,7 +320,7 @@ function Dashboard() {
       console.log("Last element DNE");
     }
 
-    setisFetchingData(true);
+    setisFetchingData("true");
     var messages = localFetchMessages();
     const lastMessage = messages.pop();
     messages.shift();
@@ -343,7 +343,7 @@ function Dashboard() {
       type: "modelResponse",
     });
 
-    setisFetchingData(false);
+    setisFetchingData("false");
   };
 
   const handleSend = async (addLastMessage = false) => {
@@ -359,7 +359,7 @@ function Dashboard() {
 
     // localAppendMessages({ content: chatInput, fromUser: true });
 
-    setisFetchingData(true);
+    setisFetchingData("true");
     var messages = localFetchMessages();
     messages.pop(0);
     messages = JSON.stringify(messages);
@@ -369,10 +369,11 @@ function Dashboard() {
       console.log(chunk);
       if (isFirstChunk) {
         localAppendMessages({
-          content: chunk,
+          content: { feedback: chunk },
           fromUser: false,
           type: "modelResponse",
         });
+        setisFetchingData("generating");
         isFirstChunk = false;
       } else {
         localPushChunk(chunk);
@@ -381,7 +382,7 @@ function Dashboard() {
     // console.log(result);
 
     // localSetResponse(result.feedback);
-    setisFetchingData(false);
+    setisFetchingData("false");
   };
 
   const formatSize = (sizeInBytes) => {
@@ -442,7 +443,7 @@ function Dashboard() {
   const localPushChunk = (chunk) => {
     let oldMessages = localFetchMessages();
     console.warn(oldMessages);
-    oldMessages[oldMessages.length - 1].content += chunk;
+    oldMessages[oldMessages.length - 1].content.feedback += chunk;
 
     localStorage.setItem("messages", JSON.stringify(oldMessages));
     setChats(oldMessages);
@@ -709,7 +710,7 @@ function Dashboard() {
                 </div>
               );
             })}
-            {isFetchingData && (
+            {isFetchingData === "true" && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 200 200"
